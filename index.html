@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Evaluación DISC – versión 2025</title>
+<style>
+:root{
+  --bg:#0b0c10; --card:#12151a; --ink:#e8eef2; --muted:#9fb0bf;
+  --accent:#2d7ff9; --accent2:#32a852; --line:#263241; --danger:#ff5a5a;
+  --D:#e53935; --I:#f1c40f; --S:#2ecc71; --C:#3498db;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(0deg,rgba(11,12,16,.6),rgba(11,12,16,.9));backdrop-filter:saturate(160%) blur(6px);padding:12px 16px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:18px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+header small{display:block;color:var(--muted)}
+.progress{height:10px;border-radius:999px;background:#0e1520;border:1px solid var(--line);overflow:hidden;margin:8px 0 0}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+main{padding:14px;max-width:960px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+.row{display:grid;grid-template-columns:1fr;gap:10px}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input[type=text],input[type=email]{width:100%;border:1px solid var(--line);background:#0f1217;color:var(--ink);border-radius:12px;padding:12px 14px;font-size:16px}
+.hint{color:var(--muted);font-size:13px}
+section.item{border:1px dashed var(--line);border-radius:12px;padding:10px;margin:12px 0}
+section.item h3{margin:0 0 8px 0;font-size:15px;color:#cfe4ff}
+.grid4{display:grid;grid-template-columns:1fr;gap:8px}
+.opt{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:#0f1217;border:1px solid var(--line);border-radius:12px;padding:10px}
+.badge{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:4px 8px;border-radius:999px}
+label.r{display:inline-flex;gap:6px;align-items:center;padding:4px 8px;border:1px solid var(--line);border-radius:999px}
+.actions{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(11,12,16,0),rgba(11,12,16,.9));border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap}
+button{appearance:none;border:none;border-radius:12px;padding:12px 14px;font-weight:700;font-size:15px;cursor:pointer}
+.primary{background:var(--accent);color:black}
+.ghost{background:#0f1217;border:1px solid var(--line);color:var(--ink)}
+.danger{background:var(--danger);color:black}
+.req::after{content:" *";color:var(--danger);font-weight:700}
+.kbd{background:#0e1520;border:1px solid var(--line);padding:2px 6px;border-radius:6px;color:var(--muted);font-family:ui-monospace,Menlo,Consolas,monospace}
+.score{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.score .box{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.score .box h4{margin:0 0 6px 0}
+.lock{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
+canvas{width:100%;max-width:680px;height:260px;background:#0f1217;border-radius:12px;border:1px solid var(--line)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--line)}
+i.D{background:var(--D)} i.I{background:var(--I)} i.S{background:var(--S)} i.C{background:var(--C)}
+@media(min-width:700px){ .grid4{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media print{header,.actions{display:none} body{background:white;color:black} .card{break-inside:avoid}}
+</style>
+  <link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+<header>
+  <h1>Evaluación DISC – versión 2025 <span class="lock">Bloqueado</span></h1>
+  <small>En cada bloque elige 1 <b>M</b> (Más me describe) y 1 <b>L</b> (Menos me describe). Esquema fijo, guardado automático.</small>
+  <div class="progress"><i id="pg"></i></div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="meta">
+      <div>
+        <label class="req">Nombre y Apellido</label>
+        <input id="nombre" type="text" placeholder="Ej.: Alex Hoyos">
+      </div>
+      <div>
+        <label class="req">WhatsApp</label>
+        <input id="whatsapp" type="text" inputmode="tel" placeholder="+57 ...">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Cargo/Rol</label>
+        <input id="rol" type="text" placeholder="Ej.: Asesor(a) comercial">
+      </div>
+      <div>
+        <label>Email</label>
+        <input id="email" type="email" placeholder="persona@correo.com">
+      </div>
+    </div>
+    <p class="hint">Lenguaje neutro y simple. Validación estricta: 1 “M” y 1 “L” por bloque.</p>
+  </div>
+
+  <div id="items"></div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <h3>Resultados</h3>
+    <div class="score" id="scoreBoxes"></div>
+    <canvas id="chart" width="680" height="260"></canvas>
+    <div class="legend">
+      <span><i class="D"></i> D – Dominancia (decidido, directo, orientado a metas)</span>
+      <span><i class="I"></i> I – Influencia (comunicador, sociable, entusiasta)</span>
+      <span><i class="S"></i> S – Estabilidad (constante, paciente, colaborador)</span>
+      <span><i class="C"></i> C – Cumplimiento (analítico, preciso, cuidadoso)</span>
+    </div>
+    <pre id="jsonOut" style="white-space:pre-wrap;background:#0f1217;border:1px solid var(--line);padding:12px;border-radius:12px;max-height:360px;overflow:auto;margin-top:10px"></pre>
+  </div>
+
+  <div style="height:80px"></div>
+</main>
+
+<div class="actions">
+  <button class="primary" id="calcular" disabled>Calcular</button>
+  <button class="ghost" id="share" disabled>Compartir</button>
+  <button class="ghost" id="whatsappBtn" disabled>WhatsApp</button>
+  <button class="ghost" onclick="window.print()">PDF</button>
+  <button class="danger" id="clear">Borrar</button>
+</div>
+
+<script>
+(function(){
+  const STORAGE_PREFIX = 'disc_eval_2025_';
+  const ids = ['nombre','whatsapp','rol','email'];
+  const itemsEl = document.getElementById('items');
+  const pg = document.getElementById('pg');
+  const resultCard = document.getElementById('resultCard');
+  const scoreBoxes = document.getElementById('scoreBoxes');
+  const jsonOut = document.getElementById('jsonOut');
+  const btnCalc = document.getElementById('calcular');
+  const btnShare = document.getElementById('share');
+  const btnWA = document.getElementById('whatsappBtn');
+  const chartEl = document.getElementById('chart');
+
+  // Esquema fijo simplificado (24 bloques). 'L' indica la letra DISC asociada a esa opción.
+  const SCHEMA = {
+    version: 2025,
+    title: "Evaluación DISC – versión 2025 (Bloqueada)",
+    items: [
+      // 1-4 (validados previamente con el usuario)
+      {opts:[{w:"Valiente, decidido, le gustan los retos",L:"D"},{w:"Paciente, tranquilo, comprensivo",L:"S"},{w:"Se preocupa con facilidad, se tensa",L:"C"},{w:"En paz, relajado, satisfecho",L:"S"}]},
+      {opts:[{w:"Fiel, constante, confiable",L:"S"},{w:"Independiente, logra lo que se propone",L:"D"},{w:"Obediente, respeta las normas",L:"C"},{w:"Seguro, confía en sí mismo",L:"I"}]},
+      {opts:[{w:"Atractivo, creativo, con energía",L:"I"},{w:"Reservado, discreto, correcto",L:"C"},{w:"Entusiasta, emprendedor, dinámico",L:"D"},{w:"Sereno, equilibrado, estable",L:"S"}]},
+      {opts:[{w:"Objetivo, analítico, mente abierta",L:"C"},{w:"Arriesgado, le gusta la acción",L:"D"},{w:"Positivo, optimista, comunicativo",L:"I"},{w:"Amigable, sociable, colaborador",L:"S"}]},
+
+      // 5-24 (simplificados manteniendo intención DISC del esquema base)
+      {opts:[{w:"Amable, agradable, divertido",L:"I"},{w:"Seguro, con coraje",L:"D"},{w:"Precavido, cuidadoso",L:"C"},{w:"Directo, desafiante",L:"D"}]},
+      {opts:[{w:"Justo, sensato",L:"C"},{w:"Inspirador, entusiasta",L:"I"},{w:"Ambicioso, decidido",L:"D"},{w:"Adaptable, flexible",L:"S"}]},
+      {opts:[{w:"Firme, toma decisiones",L:"D"},{w:"Sumiso, evita confrontar",L:"S"},{w:"Convincente, persuasivo",L:"I"},{w:"Calmo, relajado",L:"S"}]},
+      {opts:[{w:"Comprensivo, cercano",L:"S"},{w:"Discreto, sin buscar atención",L:"C"},{w:"Cómodo, acogedor",L:"S"},{w:"Alegre, bromista",L:"I"}]},
+      {opts:[{w:"Observador, prudente",L:"C"},{w:"Extrovertido, hace amigos",L:"I"},{w:"Dispuesto a ayudar, positivo",L:"S"},{w:"Confía en las personas",L:"I"}]},
+      {opts:[{w:"Valiente, busca desafíos",L:"D"},{w:"Paciente, compasivo",L:"S"},{w:"Se altera con facilidad",L:"C"},{w:"En calma, satisfecho",L:"S"}]},
+      {opts:[{w:"Leal, estable",L:"S"},{w:"Autosuficiente, logra metas",L:"D"},{w:"Obedece reglas",L:"C"},{w:"Confianza plena",L:"I"}]},
+      {opts:[{w:"Creativo, innovador",L:"I"},{w:"Reservado, correcto",L:"C"},{w:"Enérgico, activo",L:"D"},{w:"Calmo, pausado",L:"S"}]},
+      {opts:[{w:"Objetivo, mente abierta",L:"C"},{w:"Arriesga, se atreve",L:"D"},{w:"Desenvuelto, positivo",L:"I"},{w:"Popular, cae bien",L:"S"}]},
+      {opts:[{w:"Ayuda, considerado",L:"S"},{w:"Aprende fácil, se deja convencer",L:"I"},{w:"Bondadoso, receptivo",L:"S"},{w:"Informado, perceptivo",L:"C"}]},
+      {opts:[{w:"Resuelto, tenaz",L:"D"},{w:"Sociable, buena gente",L:"I"},{w:"Evalúa, examina",L:"C"},{w:"Dinámico, potente",L:"D"}]},
+      {opts:[{w:"Alegre, optimista",L:"I"},{w:"Tranquilo, evita extremos",L:"S"},{w:"Asertivo, alerta",L:"D"},{w:"Tolerante, compasivo",L:"S"}]},
+      {opts:[{w:"Chistoso, divertido",L:"I"},{w:"Expresivo, habla mucho",L:"I"},{w:"Disciplinado, metódico",L:"C"},{w:"Sociable",L:"I"}]},
+      {opts:[{w:"Exacto, correcto",L:"C"},{w:"Moderado, influenciable",L:"S"},{w:"Altruista, solidario",L:"S"},{w:"Preciso, factual",L:"C"}]},
+      {opts:[{w:"Valiente, con agallas",L:"D"},{w:"Sigue rutina, decide bien",L:"C"},{w:"Muestra emociones",L:"I"},{w:"Directo, habla claro",L:"D"}]},
+      {opts:[{w:"Relajado, no se altera",L:"S"},{w:"Seguro, decide rápido",L:"D"},{w:"Persevera, no se rinde",L:"D"},{w:"Callado, reservado",L:"C"}]},
+      {opts:[{w:"Competitivo, quiere ganar",L:"D"},{w:"Persuasivo, le gusta la gente",L:"I"},{w:"Busca reconocimiento",L:"I"},{w:"Inquieto, se aburre",L:"I"}]},
+      {opts:[{w:"Servicial, comprensivo",L:"S"},{w:"Aventurero, firme",L:"D"},{w:"Complaciente, cortés",L:"S"},{w:"Pacífico, amable",L:"S"}]},
+      {opts:[{w:"Se emociona fácil, busca diversión",L:"I"},{w:"Cortés, respetuoso",L:"C"},{w:"Selectivo, elige bien",L:"C"},{w:"Popular, encantador",L:"I"}]},
+      {opts:[{w:"Cooperativo, se adapta",L:"S"},{w:"Contento, se satisface fácil",L:"S"},{w:"Enfático, exigente",L:"D"},{w:"Ordenado, detallista",L:"C"}]}
+    ]
+  };
+
+  // Save/Load helpers
+  function save(k,v){ localStorage.setItem(STORAGE_PREFIX+k, JSON.stringify(v)); }
+  function load(k,def){ try{ return JSON.parse(localStorage.getItem(STORAGE_PREFIX+k)) ?? def; }catch(e){return def;} }
+
+  function render(){
+    itemsEl.innerHTML='';
+    SCHEMA.items.forEach((it, idx)=>{
+      const sec = document.createElement('section');
+      sec.className='item';
+      sec.innerHTML = `<h3>Bloque ${idx+1} <span class="badge">elige 1 M y 1 L</span></h3>`;
+      const grid = document.createElement('div');
+      grid.className='grid4';
+
+      it.opts.forEach((opt, j)=>{
+        const row = document.createElement('div');
+        row.className='opt';
+        row.innerHTML = `
+          <div>${opt.w}</div>
+          <label class="r">
+            <input type="radio" name="M_${idx}" value="${j}"> M
+          </label>
+          <label class="r">
+            <input type="radio" name="L_${idx}" value="${j}"> L
+          </label>
+        `;
+        grid.appendChild(row);
+      });
+      sec.appendChild(grid);
+      itemsEl.appendChild(sec);
+    });
+
+    // Restore
+    const ans = load('answers', {});
+    Object.keys(ans).forEach(k=>{
+      const el = document.querySelector(`input[name="${k}"][value="${ans[k]}"]`);
+      if(el) el.checked = true;
+    });
+
+    wireLogic();
+    updateProgress();
+    updateButtons();
+  }
+
+  function wireLogic(){
+    for (let i=0; i<SCHEMA.items.length; i++){
+      ['M','L'].forEach(type=>{
+        document.querySelectorAll(`input[name="${type}_${i}"]`).forEach(r=>{
+          r.addEventListener('change', (e)=>{
+            const other = type==='M' ? 'L' : 'M';
+            const val = e.target.value;
+            const otherEl = document.querySelector(`input[name="${other}_${i}"][value="${val}"]`);
+            if(otherEl && otherEl.checked){ otherEl.checked = false; }
+            persistAnswers();
+            updateProgress();
+            updateButtons();
+          });
+        });
+      });
+    }
+    // Meta fields
+    ids.forEach(id=>{
+      const el = document.getElementById(id);
+      el.value = load(id, '');
+      el.addEventListener('input', ()=>{ save(id, el.value); updateButtons(); });
+    });
+  }
+
+  function persistAnswers(){
+    const ans = {};
+    for (let i=0; i<SCHEMA.items.length; i++){
+      const M = document.querySelector(`input[name="M_${i}"]:checked`);
+      const L = document.querySelector(`input[name="L_${i}"]:checked`);
+      if(M) ans[`M_${i}`] = M.value;
+      if(L) ans[`L_${i}`] = L.value;
+    }
+    save('answers', ans);
+  }
+
+  function updateProgress(){
+    const total = SCHEMA.items.length * 2;
+    let filled = 0;
+    for (let i=0; i<SCHEMA.items.length; i++){
+      if(document.querySelector(`input[name="M_${i}"]:checked`)) filled++;
+      if(document.querySelector(`input[name="L_${i}"]:checked`)) filled++;
+    }
+    pg.style.width = (Math.round((filled/total)*100)) + '%';
+  }
+
+  function allComplete(){
+    if(!(document.getElementById('nombre').value.trim() && document.getElementById('whatsapp').value.trim())) return false;
+    for (let i=0; i<SCHEMA.items.length; i++){
+      const M = document.querySelector(`input[name="M_${i}"]:checked`);
+      const L = document.querySelector(`input[name="L_${i}"]:checked`);
+      if(!M || !L) return false;
+    }
+    return true;
+  }
+
+  function updateButtons(){
+    const ok = allComplete();
+    btnCalc.disabled = !ok;
+    btnShare.disabled = !ok;
+    btnWA.disabled = !ok;
+  }
+
+  function calcScore(){
+    const ans = load('answers', {});
+    const score = { M:{D:0,I:0,S:0,C:0}, L:{D:0,I:0,S:0,C:0} };
+    const respuestas = [];
+    for (let i=0; i<SCHEMA.items.length; i++){
+      const Mi = +ans[`M_${i}`]; const Li = +ans[`L_${i}`];
+      const item = SCHEMA.items[i];
+      const add = (idx, type)=>{
+        const Ltr = item.opts[idx].L || '?';
+        score[type][Ltr] = (score[type][Ltr]||0) + 1;
+        return { idx, palabra:item.opts[idx].w, letra:Ltr };
+      };
+      const row = { bloque: i+1, M: add(Mi,'M'), L: add(Li,'L') };
+      respuestas.push(row);
+    }
+    const total = {
+      D_M: score.M.D||0, I_M: score.M.I||0, S_M: score.M.S||0, C_M: score.M.C||0,
+      D_L: score.L.D||0, I_L: score.L.I||0, S_L: score.L.S||0, C_L: score.L.C||0
+    };
+    const prim = [['D',total.D_M],['I',total.I_M],['S',total.S_M],['C',total.C_M]]
+      .sort((a,b)=>b[1]-a[1]).map(x=>x[0]).join('/');
+
+    const payload = {
+      meta: {
+        nombre: document.getElementById('nombre').value || '',
+        whatsapp: document.getElementById('whatsapp').value || '',
+        rol: document.getElementById('rol').value || '',
+        email: document.getElementById('email').value || ''
+      },
+      esquema: { version: SCHEMA.version, title: SCHEMA.title, items: SCHEMA.items.length },
+      conteo: total,
+      perfil_primario_por_M: prim,
+      detalle: respuestas
+    };
+
+    // UI
+    resultCard.style.display = 'block';
+    scoreBoxes.innerHTML = '';
+    ['D','I','S','C'].forEach(d=>{
+      const box = document.createElement('div'); box.className='box';
+      box.innerHTML = `<h4>${d}</h4>
+      <div><b>M:</b> ${total[`${d}_M`]}</div>
+      <div><b>L:</b> ${total[`${d}_L`]}</div>`;
+      scoreBoxes.appendChild(box);
+    });
+    drawChart(total);
+    jsonOut.textContent = JSON.stringify(payload, null, 2);
+    save('last_result', payload);
+    return payload;
+  }
+
+  function drawChart(total){
+    const ctx = chartEl.getContext('2d');
+    ctx.clearRect(0,0,chartEl.width, chartEl.height);
+    const labels = ['D','I','S','C'];
+    const colors = {'D':getCSS('--D'),'I':getCSS('--I'),'S':getCSS('--S'),'C':getCSS('--C')};
+    const values = [total.D_M,total.I_M,total.S_M,total.C_M];
+    const maxVal = Math.max(1, ...values);
+    const pad = {l:48,r:12,t:20,b:30};
+    const W = chartEl.width - pad.l - pad.r;
+    const H = chartEl.height - pad.t - pad.b;
+    const barW = W / labels.length * 0.6;
+    const gap = W / labels.length * 0.4;
+
+    // Axes
+    ctx.strokeStyle = '#2a3a4d'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t+H); ctx.lineTo(pad.l+W, pad.t+H); ctx.stroke();
+    ctx.fillStyle = '#9fb0bf'; ctx.font = '12px system-ui';
+
+    // Y ticks (0, max)
+    for(let i=0;i<=maxVal;i+=Math.max(1, Math.ceil(maxVal/5))){
+      const y = pad.t + H - (i/maxVal)*H;
+      ctx.fillText(i.toString(), 8, y+4);
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l+W, y); ctx.stroke();
+    }
+
+    // Bars
+    let x = pad.l + gap/2;
+    labels.forEach((lab, idx)=>{
+      const v = values[idx];
+      const h = (v/maxVal)*H;
+      ctx.fillStyle = colors[lab];
+      ctx.fillRect(x, pad.t + H - h, barW, h);
+      ctx.fillStyle = '#cfe4ff';
+      ctx.textAlign = 'center';
+      ctx.fillText(lab, x + barW/2, pad.t + H + 18);
+      ctx.fillText(v.toString(), x + barW/2, pad.t + H - h - 6);
+      x += barW + gap;
+    });
+  }
+
+  function getCSS(varName){ return getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); }
+
+  // Events
+  document.getElementById('calcular').addEventListener('click', ()=>{
+    if(!allComplete()){
+      alert('Revisa: cada bloque debe tener 1 M y 1 L, y completa Nombre y WhatsApp.');
+      return;
+    }
+    calcScore();
+    window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+  });
+
+  document.getElementById('share').addEventListener('click', async ()=>{
+    if(!allComplete()){ alert('Completa todo antes de compartir.'); return; }
+    const last = load('last_result', null) || calcScore();
+    const txt = `Evaluación DISC – ${last.meta.nombre}\nPerfil (M): ${last.perfil_primario_por_M}\nM: D${last.conteo.D_M}-I${last.conteo.I_M}-S${last.conteo.S_M}-C${last.conteo.C_M}\nL: D${last.conteo.D_L}-I${last.conteo.I_L}-S${last.conteo.S_L}-C${last.conteo.C_L}`;
+    if(navigator.share){
+      try{ await navigator.share({title:'Resultados DISC', text:txt}); }catch(e){}
+    }else{
+      await navigator.clipboard.writeText(txt);
+      alert('Resumen copiado.');
+    }
+  });
+
+  document.getElementById('whatsappBtn').addEventListener('click', ()=>{
+    if(!allComplete()){ alert('Completa todo antes de enviar.'); return; }
+    const last = load('last_result', null) || calcScore();
+    const t = encodeURIComponent(
+      `*Evaluación DISC – ${last.meta.nombre}*\n` +
+      `*Perfil (M):* ${last.perfil_primario_por_M}\n` +
+      `*M:* D ${last.conteo.D_M} · I ${last.conteo.I_M} · S ${last.conteo.S_M} · C ${last.conteo.C_M}\n` +
+      `*L:* D ${last.conteo.D_L} · I ${last.conteo.I_L} · S ${last.conteo.S_L} · C ${last.conteo.C_L}\n`
+    );
+    window.open(`https://wa.me/?text=${t}`,'_blank');
+  });
+
+  document.getElementById('clear').addEventListener('click', ()=>{
+    if(confirm('¿Borrar todo?')){
+      Object.keys(localStorage).filter(k=>k.startsWith(STORAGE_PREFIX)).forEach(k=>localStorage.removeItem(k));
+      location.reload();
+    }
+  });
+
+  // Init
+  render();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(console.error);
+  });
+}
+</script>
+</body>
+</html>
